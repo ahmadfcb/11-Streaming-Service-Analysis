@@ -1,0 +1,71 @@
+---
+title: "Best Streaming Service Analysis"
+author: "18F-0405"
+date: "10/06/2022"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+## Streaming service Analysis
+Github link: "https://github.com/HuzaifahZia/Best-Streaming-Service.git"
+
+Installing Libraries
+```{r}
+library(ggplot2)
+library(ggthemes)
+library(scales)
+library(dplyr)
+library(tidyverse)
+library(tidyr)
+library(caret)
+library(RColorBrewer)
+install.packages("reshape2")
+install.packages("reshape")
+```
+
+```{r}
+tv_shows <- read.csv('tv_shows.csv')
+head(tv_shows)
+```
+#removing duplicates
+```{r}
+tv_shows <-tv_shows[!duplicated(tv_shows$Title), ]
+```
+
+#now replacing nulls with zero and converting them to intergers
+```{r}
+tv_shows$Rotten.Tomatoes = str_remove_all(tv_shows$Rotten.Tomatoes,"/100")
+tv_shows$Rotten.Tomatoes = as.numeric(tv_shows$Rotten.Tomatoes)
+
+tv_shows$IMDb[is.na(tv_shows$IMDb)] <- 0
+tv_shows$IMDb = str_remove_all(tv_shows$IMDb,"/10")
+tv_shows$IMDb = as.numeric(tv_shows$IMDb)*10
+tv_shows$IMDb = as.integer(tv_shows$IMDb)
+```
+
+```{r}
+tv_shows_combined=data.frame(sum(tv_shows$Netflix),sum(tv_shows$Hulu),sum(tv_shows$Prime.Video),sum(tv_shows$Disney.))
+tv_shows_combined=as.numeric(unlist(tv_shows_combined))
+
+ barplot(as.numeric(unlist(tv_shows_combined)) , border=F , names.arg=c('Netflix','Hulu','Prime Video','Disney+'), col="SteelBlue",ylim=c(0,2000))
+```
+
+```{r}
+ggplot(tv_shows, aes(x=c('netflix','hulu','prime video','disney'), y=tv_shows$IMDb, fill=c('netflix','hulu','prime video','disney'))) + geom_violin() 
+```
+
+```{r}
+ggplot(tv_shows, aes(x=IMDb, y=Rotten.Tomatoes, color=IMDb)) + 
+  geom_point(size=2)
+```
+
+
